@@ -1,0 +1,38 @@
+---
+import '../styles/global.css';
+
+export interface Props {
+  title?: string;
+  description?: string;
+}
+const { title = 'studyho', description = '고등학교 생활을 담은 공간' } = Astro.props as Props;
+---
+<html lang="ko" class="h-full">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content={description} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>{title}</title>
+  </head>
+  <body class="min-h-dvh bg-white text-black antialiased">
+
+    <header class="border-b border-black/10">
+      <div class="mx-auto max-w-5xl px-5 py-5 flex items-center justify-between">
+        <a href="/" class="font-semibold tracking-tight">studyho</a>
+        <nav class="flex items-center gap-5 text-sm">
+          <a class="hover:underline" href="/subjects/국어">국어</a>
+          <a class="hover:underline" href="/subjects/영어">영어</a>
+          <a class="hover:underline" href="/subjects/수학">수학</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="mx-auto max-w-3xl px-5 py-10">
+      <slot />
+    </main>
+
+  </body>
+</html>
+
+
