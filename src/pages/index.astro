@@ -2,160 +2,128 @@
 import Layout from '@/layouts/Layout.astro';
 import { getCollection } from 'astro:content';
 import type { CollectionEntry } from 'astro:content';
-// removed StudyTracker/StudyCalendar
 
-const posts = (await getCollection('posts', ({ data }) => !data.draft)) as CollectionEntry<'posts'>[];
-const logs = (await getCollection('logs', ({ data }) => !data.draft)) as CollectionEntry<'logs'>[];
-const reviews = (await getCollection('reviews', ({ data }) => !data.draft)) as CollectionEntry<'reviews'>[];
+const columns = (await getCollection('columns', ({ data }) => !data.draft)) as CollectionEntry<'columns'>[];
 
-const recentPosts = posts
-  .sort((a: CollectionEntry<'posts'>, b: CollectionEntry<'posts'>) => b.data.publishedAt.getTime() - a.data.publishedAt.getTime())
-  .slice(0, 5);
-const recentLogs = logs
-  .sort((a: CollectionEntry<'logs'>, b: CollectionEntry<'logs'>) => b.data.date.getTime() - a.data.date.getTime())
-  .slice(0, 5);
-const recentReviews = reviews
-  .sort((a: CollectionEntry<'reviews'>, b: CollectionEntry<'reviews'>) => b.data.publishedAt.getTime() - a.data.publishedAt.getTime())
-  .slice(0, 5);
+// 최신 순 정렬
+const sortedColumns = columns.sort(
+  (a: CollectionEntry<'columns'>, b: CollectionEntry<'columns'>) =>
+    b.data.publishedAt.getTime() - a.data.publishedAt.getTime()
+);
 
-const featuredPost = recentPosts[0];
-
-const recentItems = [
-  ...recentPosts.map((p) => ({
-    type: '칼럼' as const,
-    title: p.data.title,
-    href: `/posts/${p.slug}`,
-    date: p.data.publishedAt,
-    subtitle: p.data.summary || '',
-  })),
-  ...recentLogs.map((l) => ({
-    type: '공부일지' as const,
-    title: l.data.title || l.slug,
-    href: `/logs/${l.slug}`,
-    date: l.data.date,
-    subtitle: l.data.mood ? `기분: ${l.data.mood}` : '',
-  })),
-  ...recentReviews.map((r) => ({
-    type: '책 후기' as const,
-    title: r.data.bookTitle,
-    href: `/reviews/${r.slug}`,
-    date: r.data.publishedAt,
-    subtitle: `${r.data.author} · ★${r.data.rating}`,
-  })),
-]
-  .sort((a, b) => a.date.getTime() - b.date.getTime())
-  .reverse()
-  .slice(0, 5);
-
-const allTags = [
-  ...posts.flatMap((p) => p.data.tags ?? []),
-  ...logs.flatMap((l) => l.data.tags ?? []),
-  ...reviews.flatMap((r) => r.data.tags ?? []),
-];
+// 태그 집계
+const allTags = columns.flatMap((c) => c.data.tags ?? []);
 const tagCountMap = new Map<string, number>();
+
 for (const t of allTags) {
   tagCountMap.set(t, (tagCountMap.get(t) ?? 0) + 1);
 }
+
 const topTags = Array.from(tagCountMap.entries())
   .sort((a, b) => b[1] - a[1])
   .slice(0, 10);
 ---
 
-<Layout title="studyho" description="국어 · 영어 · 수학 학습 기록">
-  <section class="mb-10">
-    <h1 class="text-2xl font-semibold tracking-tight">studyho</h1>
-    <p class="text-neutral-600 mt-2">나의 고등학교 생활을 담은 공간</p>
-    <div class="mt-4 flex flex-wrap items-center gap-2 text-sm">
-      <span class="text-neutral-600">과목별:</span>
-      <a class="px-2 py-1 border border-black/10 hover:bg-black/5" href="/subjects/국어">국어</a>
-      <a class="px-2 py-1 border border-black/10 hover:bg-black/5" href="/subjects/영어">영어</a>
-      <a class="px-2 py-1 border border-black/10 hover:bg-black/5" href="/subjects/수학">수학</a>
-      <a class="ml-auto px-3 py-1.5 rounded bg-black text-white hover:bg-black/90" href="/logs">공부일지 보기</a>
+
+<Layout title="스터디호" description="공부와 생활을 기록한 글들을 모아둔 공간">
+  {/* 페이지 헤더 */}
+  <section class="mb-8 sm:mb-10">
+    <div class="flex flex-wrap items-end justify-between gap-4">
+      <div>
+        <p class="text-[11px] uppercase tracking-[0.16em] text-neutral-400 mb-1">
+          blog
+        </p>
+        <h1 class="text-xl sm:text-2xl font-semibold tracking-tight">
+          studyho 칼럼
+        </h1>
+        <p class="mt-2 text-sm text-neutral-500">
+          공부와 생활을 기록하고 공유하는 공간이에요.
+        </p>
+      </div>
+      <div class="text-xs text-neutral-400">
+        총{' '}
+        <span class="font-medium text-neutral-700">
+          {columns.length}
+        </span>
+        개의 글
+      </div>
     </div>
   </section>
 
-  <section class="mb-12 grid grid-cols-1 gap-6 md:grid-cols-2">
-    <div class="rounded-lg border border-black/10 p-5">
-      <h2 class="mb-3 text-lg font-medium">최근 업데이트</h2>
-      {recentItems.length ? (
-        <ul class="space-y-3">
-          {recentItems.map((it) => (
-            <li class="pb-3">
-              <a class="hover:underline" href={it.href}>{it.title}</a>
-              <p class="text-xs text-neutral-500 mt-1">{it.type} · {new Date(it.date).toISOString().slice(0, 10)}</p>
-              {it.subtitle && <p class="text-sm text-neutral-600 mt-1">{it.subtitle}</p>}
-            </li>
-          ))}
-        </ul>
-      ) : (
-        <p class="text-sm text-neutral-600">아직 업데이트가 없습니다.</p>
-      )}
-    </div>
-    <div class="rounded-lg border border-black/10 p-5">
-      <h2 class="mb-3 text-lg font-medium">추천 글</h2>
-      {featuredPost ? (
-        <div>
-          <a class="text-base font-medium hover:underline" href={`/posts/${featuredPost.slug}`}>{featuredPost.data.title}</a>
-          {featuredPost.data.summary && <p class="mt-2 text-sm text-neutral-600">{featuredPost.data.summary}</p>}
-          <p class="mt-2 text-xs text-neutral-500">{new Date(featuredPost.data.publishedAt).toISOString().slice(0, 10)}</p>
-        </div>
-      ) : (
-        <p class="text-sm text-neutral-600">아직 글이 없습니다.</p>
-      )}
-    </div>
-  </section>
-
+  {/* 인기 태그 */}
   {topTags.length ? (
-    <section class="mb-12">
-      <h2 class="mb-4 text-lg font-medium">인기 태그</h2>
-      <ul class="flex flex-wrap gap-2">
+    <section class="mb-8">
+      <div class="mb-2 flex items-center justify-between">
+        <h2 class="text-xs font-medium uppercase tracking-[0.16em] text-neutral-500">
+          인기 태그
+        </h2>
+        <span class="text-[11px] text-neutral-400">
+          자주 사용된 태그 순서예요.
+        </span>
+      </div>
+      <div class="flex flex-wrap gap-2">
         {topTags.map(([tag, count]) => (
-          <li class="text-sm">
-            <span class="inline-block px-2 py-1 border border-black/10">{tag} <span class="text-neutral-500">({count})</span></span>
-          </li>
+          <a
+            href={`/columns?tag=${encodeURIComponent(tag)}`}
+            class="inline-flex items-center gap-1 rounded-full border border-neutral-200 bg-white px-3 py-1 text-xs text-neutral-700 hover:bg-neutral-100"
+          >
+            <span>#{tag}</span>
+            <span class="text-[10px] text-neutral-400">{count}</span>
+          </a>
         ))}
-      </ul>
+      </div>
     </section>
   ) : null}
 
-  <section class="grid grid-cols-1 gap-12 md:grid-cols-3">
-    <div>
-      <h2 class="mb-4 text-lg font-medium">최근 칼럼</h2>
-      <ul class="space-y-3">
-        {recentPosts.map((p: CollectionEntry<'posts'>) => (
-          <li class="border-b border-black/10 pb-3">
-            <a class="hover:underline" href={`/posts/${p.slug}`}>{p.data.title}</a>
-            {p.data.summary && <p class="text-sm text-neutral-600 mt-1">{p.data.summary}</p>}
-          </li>
-        ))}
-      </ul>
-      <a class="mt-4 inline-block text-sm underline" href="/posts">모두 보기</a>
-    </div>
+  {/* 칼럼 리스트 — 그림자 제거, 플랫 스타일 */}
+  <section>
+    {sortedColumns.length ? (
+      <div class="grid grid-cols-1 gap-3 sm:gap-4 md:grid-cols-2">
+        {sortedColumns.map((c: CollectionEntry<'columns'>) => (
+          <a
+            href={`/columns/${c.slug}`}
+            class="group flex flex-col rounded-xl border border-neutral-200 bg-white px-4 py-4 sm:px-5 sm:py-5 hover:bg-neutral-50 transition"
+          >
+            {/* 날짜 + 태그 */}
+            <div class="flex items-center justify-between gap-2 text-[11px] text-neutral-400 mb-1.5">
+              <span>{new Date(c.data.publishedAt).toISOString().slice(0, 10)}</span>
+              {c.data.tags && c.data.tags.length > 0 && (
+                <span class="inline-flex items-center gap-1 truncate max-w-[140px] justify-end">
+                  <span class="h-1 w-1 rounded-full bg-neutral-300" />
+                  <span class="truncate">
+                    #{c.data.tags[0]}
+                    {c.data.tags.length > 1 && (
+                      <span class="text-neutral-400">
+                        {' '}+{c.data.tags.length - 1}
+                      </span>
+                    )}
+                  </span>
+                </span>
+              )}
+            </div>
 
-    <div>
-      <h2 class="mb-4 text-lg font-medium">최근 공부일지</h2>
-      <ul class="space-y-3">
-        {recentLogs.map((l: CollectionEntry<'logs'>) => (
-          <li class="border-b border-black/10 pb-3">
-            <a class="hover:underline" href={`/logs/${l.slug}`}>{l.data.title || l.slug}</a>
-            <p class="text-sm text-neutral-600 mt-1">{new Date(l.data.date).toISOString().slice(0, 10)}</p>
-          </li>
-        ))}
-      </ul>
-      <a class="mt-4 inline-block text-sm underline" href="/logs">모두 보기</a>
-    </div>
+            {/* 제목 */}
+            <h2 class="text-sm sm:text-base font-semibold tracking-tight text-neutral-900 group-hover:underline line-clamp-2">
+              {c.data.title}
+            </h2>
 
-    <div>
-      <h2 class="mb-4 text-lg font-medium">최근 책 후기</h2>
-      <ul class="space-y-3">
-        {recentReviews.map((r: CollectionEntry<'reviews'>) => (
-          <li class="border-b border-black/10 pb-3">
-            <a class="hover:underline" href={`/reviews/${r.slug}`}>{r.data.bookTitle}</a>
-            <p class="text-sm text-neutral-600 mt-1">{r.data.author} · ★{r.data.rating}</p>
-          </li>
+            {/* 요약 */}
+            {c.data.summary && (
+              <p class="mt-2 text-xs sm:text-sm text-neutral-600 line-clamp-3">
+                {c.data.summary}
+              </p>
+            )}
+
+            {/* 하단 */}
+            <div class="mt-3 flex items-center justify-between text-[11px] text-neutral-400">
+              <span>읽기</span>
+              <span aria-hidden="true" class="group-hover:translate-x-[1px] transition">↗</span>
+            </div>
+          </a>
         ))}
-      </ul>
-      <a class="mt-4 inline-block text-sm underline" href="/reviews">모두 보기</a>
-    </div>
+      </div>
+    ) : (
+      <p class="text-sm text-neutral-500">아직 작성된 칼럼이 없습니다.</p>
+    )}
   </section>
 </Layout>

@@ -1,0 +1,56 @@
+---
+import Layout from '@/layouts/Layout.astro';
+import { getCollection } from 'astro:content';
+import type { CollectionEntry } from 'astro:content';
+
+const columns = (await getCollection('columns', ({ data }) => !data.draft)) as CollectionEntry<'columns'>[];
+columns.sort((a: CollectionEntry<'columns'>, b: CollectionEntry<'columns'>) => b.data.publishedAt.getTime() - a.data.publishedAt.getTime());
+---
+
+<Layout title="칼럼 – studyho">
+  <section class="mb-8">
+    <h1 class="text-xl sm:text-2xl font-semibold tracking-tight text-neutral-900">칼럼</h1>
+    <p class="mt-2 text-sm text-neutral-500">
+      studyho에 작성된 칼럼들을 최신순으로 볼 수 있는 페이지예요.
+    </p>
+  </section>
+
+  <ul class="divide-y divide-neutral-200 border border-neutral-200 rounded-xl bg-white">
+    {columns.map((c) => (
+      <li>
+        <a
+          href={`/columns/${c.slug}`}
+          class="block px-4 py-5 sm:px-5 hover:bg-neutral-50 transition"
+        >
+          {/* 날짜 */}
+          <p class="text-[11px] text-neutral-400 mb-1">
+            {new Date(c.data.publishedAt).toISOString().slice(0, 10)}
+          </p>
+
+          {/* 제목 */}
+          <h2 class="text-base sm:text-lg font-medium tracking-tight text-neutral-900 hover:underline line-clamp-2">
+            {c.data.title}
+          </h2>
+
+          {/* 요약 */}
+          {c.data.summary && (
+            <p class="mt-2 text-sm text-neutral-600 line-clamp-2">
+              {c.data.summary}
+            </p>
+          )}
+
+          {/* 태그 */}
+          {c.data.tags?.length ? (
+            <ul class="mt-3 flex flex-wrap gap-2 text-xs text-neutral-600 list-none">
+              {c.data.tags.map((t) => (
+                <li class="px-2 py-0.5 rounded-full border border-neutral-200 bg-neutral-50">
+                  #{t}
+                </li>
+              ))}
+            </ul>
+          ) : null}
+        </a>
+      </li>
+    ))}
+  </ul>
+</Layout>
