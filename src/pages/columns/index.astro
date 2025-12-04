@@ -5,52 +5,214 @@ import type { CollectionEntry } from 'astro:content';
 
 const columns = (await getCollection('columns', ({ data }) => !data.draft)) as CollectionEntry<'columns'>[];
 columns.sort((a: CollectionEntry<'columns'>, b: CollectionEntry<'columns'>) => b.data.publishedAt.getTime() - a.data.publishedAt.getTime());
+
+// 태그 집계
+const allTags = columns.flatMap((c) => c.data.tags ?? []);
+const tagCountMap = new Map<string, number>();
+
+for (const t of allTags) {
+  tagCountMap.set(t, (tagCountMap.get(t) ?? 0) + 1);
+}
+
+const topTags = Array.from(tagCountMap.entries())
+  .sort((a, b) => b[1] - a[1])
+  .slice(0, 15);
+
+// URL에서 선택된 태그 가져오기
+const selectedTag = Astro.url.searchParams.get('tag');
+const filteredColumns = selectedTag
+  ? columns.filter((c) => c.data.tags?.includes(selectedTag))
+  : columns;
 ---
 
-<Layout title="칼럼 – studyho">
-  <section class="mb-8">
-    <h1 class="text-xl sm:text-2xl font-semibold tracking-tight text-neutral-900">칼럼</h1>
-    <p class="mt-2 text-sm text-neutral-500">
-      studyho에 작성된 칼럼들을 최신순으로 볼 수 있는 페이지예요.
-    </p>
+<Layout title="칼럼 – studyho" description="studyho의 모든 칼럼을 확인하세요">
+  
+  {/* 페이지 헤더 */}
+  <section class="mb-12 animate-fade-in">
+    <div class="flex items-start justify-between gap-6 mb-6">
+      <div class="flex-1">
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full mb-4 text-xs font-medium animate-scale-in" style="background: var(--bg-tertiary); color: var(--text-tertiary); border: 1px solid var(--border-primary);">
+          <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
+          </svg>
+          COLUMNS
+        </div>
+        
+        <h1 class="text-3xl sm:text-4xl font-bold tracking-tight mb-3 animate-slide-in-left animate-delay-100" style="color: var(--text-primary);">
+          {selectedTag ? (
+            <>
+              <span class="text-[var(--accent-primary)]">#{selectedTag}</span> 태그 칼럼
+            </>
+          ) : (
+            '모든 칼럼'
+          )}
+        </h1>
+        
+        <p class="text-base animate-slide-in-right animate-delay-200" style="color: var(--text-secondary);">
+          {selectedTag 
+            ? `${selectedTag} 태그가 포함된 칼럼을 모아봤어요.`
+            : 'studyho에 작성된 모든 칼럼을 최신순으로 볼 수 있어요.'
+          }
+        </p>
+      </div>
+      
+      <div class="text-right animate-fade-in animate-delay-200">
+        <div class="text-3xl font-bold mb-1" style="color: var(--accent-primary);">
+          {filteredColumns.length}
+        </div>
+        <div class="text-xs" style="color: var(--text-tertiary);">
+          {selectedTag ? '필터된 칼럼' : '전체 칼럼'}
+        </div>
+      </div>
+    </div>
+
+    {/* 태그 필터 */}
+    {topTags.length > 0 && (
+      <div class="animate-fade-in animate-delay-300">
+        <div class="flex items-center gap-2 mb-3">
+          <svg class="w-4 h-4" style="color: var(--accent-primary);" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+          </svg>
+          <span class="text-sm font-semibold" style="color: var(--text-primary);">태그 필터</span>
+        </div>
+        
+        <div class="flex flex-wrap gap-2">
+          {selectedTag && (
+            <a
+              href="/columns"
+              class="group px-3 py-1.5 rounded-lg text-xs font-medium transition-smooth hover-lift"
+              style="background: var(--accent-primary); color: var(--bg-primary);"
+            >
+              <span class="flex items-center gap-1.5">
+                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+                전체 보기
+              </span>
+            </a>
+          )}
+          
+          {topTags.map(([tag, count]) => {
+            const isSelected = tag === selectedTag;
+            return (
+              <a
+                href={isSelected ? '/columns' : `/columns?tag=${encodeURIComponent(tag)}`}
+                class={`group px-3 py-1.5 rounded-lg text-xs font-medium transition-smooth hover-lift ${isSelected ? '' : ''}`}
+                style={isSelected 
+                  ? 'background: var(--accent-primary); color: var(--bg-primary);'
+                  : 'background: var(--bg-tertiary); color: var(--text-secondary); border: 1px solid var(--border-primary);'
+                }
+              >
+                <span class="flex items-center gap-1.5">
+                  <span>#{tag}</span>
+                  <span class="px-1.5 py-0.5 rounded text-[10px] font-bold" style={isSelected ? 'background: rgba(255, 255, 255, 0.2);' : 'background: var(--bg-secondary);'}>
+                    {count}
+                  </span>
+                </span>
+              </a>
+            );
+          })}
+        </div>
+      </div>
+    )}
   </section>
 
-  <ul class="divide-y divide-neutral-200 border border-neutral-200 rounded-xl bg-white">
-    {columns.map((c) => (
-      <li>
-        <a
-          href={`/columns/${c.slug}`}
-          class="block px-4 py-5 sm:px-5 hover:bg-neutral-50 transition"
-        >
-          {/* 날짜 */}
-          <p class="text-[11px] text-neutral-400 mb-1">
-            {new Date(c.data.publishedAt).toISOString().slice(0, 10)}
-          </p>
+  {/* 칼럼 목록 */}
+  <section>
+    {filteredColumns.length > 0 ? (
+      <div class="space-y-4">
+        {filteredColumns.map((c, index) => (
+          <article
+            class="group animate-fade-in"
+            style={`animation-delay: ${index * 0.05}s; opacity: 0;`}
+          >
+            <a
+              href={`/columns/${c.slug}`}
+              class="block p-6 sm:p-7 rounded-xl transition-smooth hover-lift"
+              style="background: var(--bg-secondary); border: 1px solid var(--border-primary);"
+            >
+              {/* 메타 정보 */}
+              <div class="flex items-center gap-3 mb-3 flex-wrap">
+                <div class="flex items-center gap-1.5 text-xs" style="color: var(--text-tertiary);">
+                  <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                  {new Date(c.data.publishedAt).toISOString().slice(0, 10)}
+                </div>
+                
+                {c.data.tags && c.data.tags.length > 0 && (
+                  <div class="flex items-center gap-2">
+                    {c.data.tags.slice(0, 3).map((tag) => {
+                      const isCurrentTag = tag === selectedTag;
+                      return (
+                        <span 
+                          class={`px-2 py-0.5 rounded-full text-xs font-medium ${isCurrentTag ? 'ring-2 ring-[var(--accent-primary)] ring-offset-2' : ''}`}
+                          style={isCurrentTag 
+                            ? 'background: var(--accent-primary); color: var(--bg-primary);'
+                            : 'background: var(--bg-tertiary); color: var(--text-tertiary); border: 1px solid var(--border-primary);'
+                          }
+                        >
+                          #{tag}
+                        </span>
+                      );
+                    })}
+                    {c.data.tags.length > 3 && (
+                      <span class="text-xs" style="color: var(--text-quaternary);">
+                        +{c.data.tags.length - 3}
+                      </span>
+                    )}
+                  </div>
+                )}
+              </div>
 
-          {/* 제목 */}
-          <h2 class="text-base sm:text-lg font-medium tracking-tight text-neutral-900 hover:underline line-clamp-2">
-            {c.data.title}
-          </h2>
+              {/* 제목 */}
+              <h2 class="text-xl sm:text-2xl font-bold mb-3 line-clamp-2 group-hover:text-[var(--accent-primary)] transition-colors" style="color: var(--text-primary);">
+                {c.data.title}
+              </h2>
 
-          {/* 요약 */}
-          {c.data.summary && (
-            <p class="mt-2 text-sm text-neutral-600 line-clamp-2">
-              {c.data.summary}
-            </p>
-          )}
+              {/* 요약 */}
+              {c.data.summary && (
+                <p class="text-sm sm:text-base mb-4 line-clamp-2 leading-relaxed" style="color: var(--text-secondary);">
+                  {c.data.summary}
+                </p>
+              )}
 
-          {/* 태그 */}
-          {c.data.tags?.length ? (
-            <ul class="mt-3 flex flex-wrap gap-2 text-xs text-neutral-600 list-none">
-              {c.data.tags.map((t) => (
-                <li class="px-2 py-0.5 rounded-full border border-neutral-200 bg-neutral-50">
-                  #{t}
-                </li>
-              ))}
-            </ul>
-          ) : null}
-        </a>
-      </li>
-    ))}
-  </ul>
+              {/* 읽기 링크 */}
+              <div class="flex items-center gap-2 text-sm font-medium group-hover:text-[var(--accent-primary)] transition-colors" style="color: var(--text-tertiary);">
+                <span>자세히 읽기</span>
+                <svg class="w-4 h-4 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                </svg>
+              </div>
+            </a>
+          </article>
+        ))}
+      </div>
+    ) : (
+      <div class="text-center py-20 rounded-xl animate-fade-in" style="background: var(--bg-secondary); border: 1px dashed var(--border-primary);">
+        <svg class="w-20 h-20 mx-auto mb-6 opacity-50" style="color: var(--text-tertiary);" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <p class="text-lg font-semibold mb-2" style="color: var(--text-primary);">칼럼을 찾을 수 없어요</p>
+        <p class="text-sm mb-6" style="color: var(--text-secondary);">
+          {selectedTag 
+            ? `'${selectedTag}' 태그를 가진 칼럼이 없습니다.`
+            : '아직 작성된 칼럼이 없습니다.'
+          }
+        </p>
+        {selectedTag && (
+          <a
+            href="/columns"
+            class="inline-flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-smooth hover-lift"
+            style="background: var(--accent-primary); color: var(--bg-primary);"
+          >
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            전체 칼럼 보기
+          </a>
+        )}
+      </div>
+    )}
+  </section>
 </Layout>

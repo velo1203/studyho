@@ -4,32 +4,206 @@ import '../styles/global.css';
 export interface Props {
   title?: string;
   description?: string;
+  image?: string;
+  article?: boolean;
 }
-const { title = 'studyho', description = '고등학교 생활을 담은 공간' } = Astro.props as Props;
+
+const { 
+  title = 'studyho', 
+  description = '공부와 생활을 기록하는 공간',
+  image = '/og-image.png',
+  article = false
+} = Astro.props as Props;
+
+const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+const socialImageURL = new URL(image, Astro.site || 'https://studyho.com');
 ---
 <html lang="ko" class="h-full">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="description" content={description} />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    
+    <!-- Primary Meta Tags -->
     <title>{title}</title>
+    <meta name="title" content={title} />
+    <meta name="description" content={description} />
+    <meta name="author" content="studyho" />
+    <link rel="canonical" href={canonicalURL} />
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content={article ? 'article' : 'website'} />
+    <meta property="og:url" content={canonicalURL} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={socialImageURL} />
+    <meta property="og:site_name" content="studyho" />
+    <meta property="og:locale" content="ko_KR" />
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content={canonicalURL} />
+    <meta property="twitter:title" content={title} />
+    <meta property="twitter:description" content={description} />
+    <meta property="twitter:image" content={socialImageURL} />
+    
+    <!-- Theme Color -->
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)" />
+    
+    <!-- 테마 초기화 스크립트 (FOUC 방지) -->
+    <script is:inline>
+      const theme = (() => {
+        if (typeof localStorage !== 'undefined' && localStorage.getItem('theme')) {
+          return localStorage.getItem('theme');
+        }
+        if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+          return 'dark';
+        }
+        return 'light';
+      })();
+      
+      if (theme === 'dark') {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+      
+      window.__theme = theme;
+    </script>
   </head>
-  <body class="min-h-dvh bg-white text-black antialiased">
-
-    <header class="border-b border-black/10">
-      <div class="mx-auto max-w-5xl px-5 py-5 flex items-center justify-between">
-        <a href="/" class="font-semibold tracking-tight">studyho</a>
-        <nav class="flex items-center gap-5 text-sm">
-          <a class="hover:underline" href="/columns">칼럼</a>
+  
+  <body class="min-h-dvh antialiased transition-colors-smooth">
+    
+    <!-- 헤더 -->
+    <header class="site-header sticky top-0 z-50 backdrop-blur-lg border-b transition-colors-smooth" style="border-color: var(--border-primary);">
+      <div class="mx-auto max-w-5xl px-5 py-4 flex items-center justify-between">
+        <!-- 로고 -->
+        <a 
+          href="/" 
+          class="group flex items-center gap-2 font-bold text-lg tracking-tight transition-smooth"
+          style="color: var(--text-primary);"
+        >
+          <svg class="w-6 h-6 transition-transform group-hover:scale-110" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+          </svg>
+          <span class="group-hover:text-[var(--accent-primary)] transition-colors">studyho</span>
+        </a>
+        
+        <!-- 네비게이션 & 테마 스위처 -->
+        <nav class="flex items-center gap-6">
+          <a 
+            class="text-sm font-medium hover:text-[var(--accent-primary)] transition-colors relative after:absolute after:bottom-0 after:left-0 after:h-[2px] after:w-0 after:bg-[var(--accent-primary)] after:transition-all hover:after:w-full" 
+            href="/columns"
+            style="color: var(--text-secondary);"
+          >
+            칼럼
+          </a>
+          
+          <!-- 테마 토글 버튼 -->
+          <button
+            id="theme-toggle"
+            class="p-2 rounded-lg hover:bg-[var(--bg-tertiary)] transition-smooth"
+            aria-label="테마 변경"
+            style="color: var(--text-secondary);"
+          >
+            <!-- 라이트 모드 아이콘 -->
+            <svg class="sun-icon w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+            </svg>
+            <!-- 다크 모드 아이콘 -->
+            <svg class="moon-icon w-5 h-5 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+            </svg>
+          </button>
         </nav>
       </div>
     </header>
 
-    <main class="mx-auto max-w-3xl px-5 py-10">
+    <!-- 메인 콘텐츠 -->
+    <main class="mx-auto max-w-3xl px-5 py-12 md:py-16">
       <slot />
     </main>
 
+    <!-- 푸터 -->
+    <footer class="mt-auto border-t" style="border-color: var(--border-primary);">
+      <div class="mx-auto max-w-5xl px-5 py-8">
+        <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+          <p class="text-sm" style="color: var(--text-tertiary);">
+            © 2025 studyho. 공부와 생활을 기록하는 공간.
+          </p>
+          <div class="flex items-center gap-4">
+            <a 
+              href="#" 
+              class="text-sm hover:text-[var(--accent-primary)] transition-colors"
+              style="color: var(--text-tertiary);"
+            >
+              GitHub
+            </a>
+            <span style="color: var(--border-primary);">•</span>
+            <a 
+              href="#" 
+              class="text-sm hover:text-[var(--accent-primary)] transition-colors"
+              style="color: var(--text-tertiary);"
+            >
+              RSS
+            </a>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <!-- 테마 토글 스크립트 -->
+    <script>
+      // 타입 선언
+      declare global {
+        interface Window {
+          __theme?: string;
+        }
+      }
+      
+      const toggleButton = document.getElementById('theme-toggle');
+      const sunIcon = document.querySelector('.sun-icon');
+      const moonIcon = document.querySelector('.moon-icon');
+      
+      function updateIcons(theme: string) {
+        if (theme === 'dark') {
+          sunIcon?.classList.add('hidden');
+          moonIcon?.classList.remove('hidden');
+        } else {
+          sunIcon?.classList.remove('hidden');
+          moonIcon?.classList.add('hidden');
+        }
+      }
+      
+      // 초기 아이콘 설정
+      updateIcons(window.__theme || 'light');
+      
+      toggleButton?.addEventListener('click', () => {
+        const currentTheme = document.documentElement.classList.contains('dark') ? 'dark' : 'light';
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        
+        // DOM 업데이트
+        if (newTheme === 'dark') {
+          document.documentElement.classList.add('dark');
+        } else {
+          document.documentElement.classList.remove('dark');
+        }
+        
+        // 로컬 스토리지 저장
+        localStorage.setItem('theme', newTheme);
+        window.__theme = newTheme;
+        
+        // 아이콘 업데이트
+        updateIcons(newTheme);
+      });
+    </script>
   </body>
 </html>
 

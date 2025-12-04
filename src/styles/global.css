@@ -8,13 +8,285 @@
         "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
 }
 
+/* ===== 라이트/다크 테마 변수 (흑백 조화) ===== */
+:root {
+    --bg-primary: #ffffff;
+    --bg-secondary: #fafafa;
+    --bg-tertiary: #f4f4f4;
+    --bg-hover: #f8f8f8;
+    --border-primary: rgba(0, 0, 0, 0.1);
+    --border-secondary: rgba(0, 0, 0, 0.05);
+    --text-primary: #000000;
+    --text-secondary: #404040;
+    --text-tertiary: #737373;
+    --text-quaternary: #a3a3a3;
+    --accent-primary: #000000;
+    --accent-secondary: #1a1a1a;
+    --accent-hover: #333333;
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.08);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+.dark {
+    --bg-primary: #000000;
+    --bg-secondary: #0a0a0a;
+    --bg-tertiary: #171717;
+    --bg-hover: #1a1a1a;
+    --border-primary: rgba(255, 255, 255, 0.1);
+    --border-secondary: rgba(255, 255, 255, 0.05);
+    --text-primary: #ffffff;
+    --text-secondary: #e5e5e5;
+    --text-tertiary: #a3a3a3;
+    --text-quaternary: #737373;
+    --accent-primary: #ffffff;
+    --accent-secondary: #f5f5f5;
+    --accent-hover: #e5e5e5;
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.5);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.6);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.7);
+}
+
+/* ===== 기본 스타일 ===== */
+html {
+    scroll-behavior: smooth;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
 html,
 body {
     font-family: var(--font-sans);
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+}
+
+/* ===== 헤더 스타일 ===== */
+.site-header {
+    background: rgba(255, 255, 255, 0.8);
+}
+
+.dark .site-header {
+    background: rgba(0, 0, 0, 0.8);
+}
+
+/* ===== 애니메이션 정의 ===== */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideInLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes scaleIn {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes shimmer {
+    0% {
+        background-position: -200% 0;
+    }
+    100% {
+        background-position: 200% 0;
+    }
+}
+
+/* ===== 유틸리티 클래스 ===== */
+.animate-fade-in {
+    animation: fadeIn 0.5s ease-out forwards;
+}
+
+.animate-slide-in-left {
+    animation: slideInLeft 0.6s ease-out forwards;
+}
+
+.animate-slide-in-right {
+    animation: slideInRight 0.6s ease-out forwards;
+}
+
+.animate-scale-in {
+    animation: scaleIn 0.4s ease-out forwards;
+}
+
+.animate-delay-100 {
+    animation-delay: 0.1s;
+    opacity: 0;
+}
+
+.animate-delay-200 {
+    animation-delay: 0.2s;
+    opacity: 0;
+}
+
+.animate-delay-300 {
+    animation-delay: 0.3s;
+    opacity: 0;
+}
+
+.animate-delay-400 {
+    animation-delay: 0.4s;
+    opacity: 0;
+}
+
+/* ===== 부드러운 트랜지션 ===== */
+.transition-smooth {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.transition-colors-smooth {
+    transition: background-color 0.2s ease, color 0.2s ease,
+        border-color 0.2s ease;
+}
+
+/* ===== 호버 효과 ===== */
+.hover-lift {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.hover-lift:hover {
+    transform: translateY(-2px);
+}
+
+.hover-glow:hover {
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+}
+
+.dark .hover-glow:hover {
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+}
+
+/* ===== Prose 다크 테마 스타일 ===== */
+.prose {
+    color: var(--text-primary);
 }
 
 .prose :where(code):not(:where(pre :is(code))) {
-    background: #f6f6f6;
-    padding: 2px 4px;
+    background: var(--bg-tertiary);
+    color: var(--accent-primary);
+    padding: 2px 6px;
     border-radius: 4px;
+    font-size: 0.9em;
+    font-weight: 500;
+    border: 1px solid var(--border-primary);
+}
+
+.prose :where(pre) {
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-primary);
+    border-radius: 8px;
+    box-shadow: var(--shadow-sm);
+}
+
+.prose :where(pre code) {
+    background: transparent;
+    border: none;
+    padding: 0;
+}
+
+.prose :where(h1, h2, h3, h4, h5, h6) {
+    color: var(--text-primary);
+}
+
+.prose :where(strong) {
+    color: var(--text-primary);
+}
+
+.prose :where(a) {
+    color: var(--accent-primary);
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.prose :where(a):hover {
+    color: var(--accent-hover);
+    text-decoration: underline;
+}
+
+.prose :where(blockquote) {
+    border-left-color: var(--accent-primary);
+    color: var(--text-secondary);
+    background: var(--bg-secondary);
+    padding: 1rem 1.5rem;
+    border-radius: 0 8px 8px 0;
+}
+
+.prose :where(hr) {
+    border-color: var(--border-primary);
+}
+
+/* ===== 포커스 스타일 ===== */
+:focus-visible {
+    outline: 2px solid var(--accent-primary);
+    outline-offset: 2px;
+    border-radius: 4px;
+}
+
+/* ===== 선택 영역 스타일 ===== */
+::selection {
+    background-color: var(--accent-primary);
+    color: var(--bg-primary);
+}
+
+/* ===== 스크롤바 스타일 ===== */
+::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--bg-secondary);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--text-quaternary);
+    border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--text-tertiary);
+}
+
+/* ===== 로딩 스켈레톤 ===== */
+.skeleton {
+    background: linear-gradient(
+        90deg,
+        var(--bg-secondary) 0%,
+        var(--bg-tertiary) 50%,
+        var(--bg-secondary) 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.5s ease-in-out infinite;
+    border-radius: 8px;
 }

@@ -1,0 +1,48 @@
+<svg width="1200" height="630" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      .bg { fill: #ffffff; }
+      .text-primary { fill: #000000; }
+      .text-secondary { fill: #404040; }
+      .accent { fill: #000000; }
+    </style>
+  </defs>
+  
+  <!-- 배경 -->
+  <rect class="bg" width="1200" height="630"/>
+  
+  <!-- 상단 라벨 -->
+  <text x="100" y="140" font-family="system-ui, -apple-system, sans-serif" font-size="24" font-weight="500" class="text-secondary">STUDYHO.COM</text>
+  
+  <!-- 메인 타이틀 -->
+  <text x="100" y="250" font-family="system-ui, -apple-system, sans-serif" font-size="96" font-weight="bold" class="text-primary">studyho</text>
+  
+  <!-- 밑줄 -->
+  <rect x="100" y="270" width="400" height="8" class="accent"/>
+  
+  <!-- 부제목 -->
+  <text x="100" y="360" font-family="system-ui, -apple-system, sans-serif" font-size="36" font-weight="400" class="text-secondary">공부와 생활을 기록하는 공간</text>
+  
+  <!-- 책 아이콘 -->
+  <g transform="translate(900, 200)">
+    <!-- 왼쪽 페이지 -->
+    <path d="M 0 0 L 0 200 L 100 180 L 100 -20 Z" fill="none" stroke="#000000" stroke-width="8" stroke-linejoin="round"/>
+    <!-- 오른쪽 페이지 -->
+    <path d="M 100 -20 L 100 180 L 200 200 L 200 0 Z" fill="none" stroke="#000000" stroke-width="8" stroke-linejoin="round"/>
+    <!-- 중앙선 -->
+    <line x1="100" y1="-20" x2="100" y2="180" stroke="#000000" stroke-width="6"/>
+  </g>
+  
+  <!-- 하단 태그들 -->
+  <g transform="translate(100, 480)">
+    <rect x="0" y="0" width="100" height="40" rx="20" fill="#f4f4f4"/>
+    <text x="50" y="27" font-family="system-ui" font-size="18" font-weight="600" text-anchor="middle" class="text-secondary">국어</text>
+    
+    <rect x="120" y="0" width="100" height="40" rx="20" fill="#f4f4f4"/>
+    <text x="170" y="27" font-family="system-ui" font-size="18" font-weight="600" text-anchor="middle" class="text-secondary">영어</text>
+    
+    <rect x="240" y="0" width="100" height="40" rx="20" fill="#f4f4f4"/>
+    <text x="290" y="27" font-family="system-ui" font-size="18" font-weight="600" text-anchor="middle" class="text-secondary">수학</text>
+  </g>
+</svg>
+

@@ -1,0 +1,6 @@
+# studyho robots.txt
+User-agent: *
+Allow: /
+
+Sitemap: https://studyho.com/sitemap-index.xml
+
