@@ -38,7 +38,7 @@ const filteredColumns = selectedTag
           COLUMNS
         </div>
         
-        <h1 class="text-3xl sm:text-4xl font-bold tracking-tight mb-3 animate-slide-in-left animate-delay-100" style="color: var(--text-primary);">
+        <h1 class="text-2xl sm:text-3xl font-bold tracking-tight mb-3 animate-slide-in-left animate-delay-100" style="color: var(--text-primary);">
           {selectedTag ? (
             <>
               <span class="text-[var(--accent-primary)]">#{selectedTag}</span> 태그 칼럼
@@ -48,7 +48,7 @@ const filteredColumns = selectedTag
           )}
         </h1>
         
-        <p class="text-base animate-slide-in-right animate-delay-200" style="color: var(--text-secondary);">
+        <p class="text-sm sm:text-base animate-slide-in-right animate-delay-200" style="color: var(--text-secondary);">
           {selectedTag 
             ? `${selectedTag} 태그가 포함된 칼럼을 모아봤어요.`
             : 'studyho에 작성된 모든 칼럼을 최신순으로 볼 수 있어요.'
@@ -57,7 +57,7 @@ const filteredColumns = selectedTag
       </div>
       
       <div class="text-right animate-fade-in animate-delay-200">
-        <div class="text-3xl font-bold mb-1" style="color: var(--accent-primary);">
+        <div class="text-2xl font-bold mb-1" style="color: var(--accent-primary);">
           {filteredColumns.length}
         </div>
         <div class="text-xs" style="color: var(--text-tertiary);">
@@ -165,17 +165,17 @@ const filteredColumns = selectedTag
                 )}
               </div>
 
-              {/* 제목 */}
-              <h2 class="text-xl sm:text-2xl font-bold mb-3 line-clamp-2 group-hover:text-[var(--accent-primary)] transition-colors" style="color: var(--text-primary);">
-                {c.data.title}
-              </h2>
+            {/* 제목 */}
+            <h2 class="text-lg font-bold mb-3 line-clamp-2 group-hover:text-[var(--accent-primary)] transition-colors" style="color: var(--text-primary);">
+              {c.data.title}
+            </h2>
 
-              {/* 요약 */}
-              {c.data.summary && (
-                <p class="text-sm sm:text-base mb-4 line-clamp-2 leading-relaxed" style="color: var(--text-secondary);">
-                  {c.data.summary}
-                </p>
-              )}
+            {/* 요약 */}
+            {c.data.summary && (
+              <p class="text-sm mb-4 line-clamp-2 leading-relaxed" style="color: var(--text-secondary);">
+                {c.data.summary}
+              </p>
+            )}
 
               {/* 읽기 링크 */}
               <div class="flex items-center gap-2 text-sm font-medium group-hover:text-[var(--accent-primary)] transition-colors" style="color: var(--text-tertiary);">
